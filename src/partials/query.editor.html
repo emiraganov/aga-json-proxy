@@ -5,21 +5,72 @@
     </div>
 
     <div class="gf-form" ng-if="ctrl.target.rawQuery">
-      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeITarget)" />
     </div>
 
     <div ng-if="!ctrl.target.rawQuery">
       <div class="gf-form">
         <gf-form-dropdown model="ctrl.target.target"
-          allow-custom="true"
+          allow-custom="false"
           lookup-text="true"
           get-options="ctrl.getOptions($query)"
-          on-change="ctrl.onChangeInternal()">
-      </gf-form-dropdown>
+          on-change="ctrl.onChangeTarget()">
+        </gf-form-dropdown>
+
+      
+        <!-- <div class="gf-form" > -->
+        <div class="gf-form aga-filters" ng-repeat="segment in ctrl.target.segments">
+          <!-- DROPDOWN BUT DATA LOADED FROM SERVER -->
+          <gf-form-dropdown ng-if="segment.model=='dropdown'"
+            model="segment.value"
+            allow-custom="true"
+            lookup-text="true"
+            class = "max-width-12"
+            get-options="ctrl.getSegmentOptions(segment,$query)"
+            on-change="ctrl.onChangeInternal()">
+          </gf-form-dropdown>
+
+          <!-- NORMAL INPUT FIELD -->
+          <input  ng-if="segment.model=='input'" 
+          type="text" ng-model="segment.value" 
+          name="{{segment.name}}"
+          ng-change="ctrl.onChangeInternal()"
+          class="gf-form-input"
+          placeholder="{{segment.text}}"/>
+
+
+          <!-- CONDITIN INPUT WITH <>=!= -->
+          <div class="gf-form aga-conditioninput">
+             <select ng-if="segment.model=='conditioninput'" 
+              class = "max-width-4" 
+              ng-model="segment.operator"
+              ng-init="segment.operator = '<'" 
+              ng-options="x for x in ctrl.operators"
+              ng-change="ctrl.onChangeInternal()">
+            </select>
+            <input ng-if="segment.model=='conditioninput'"
+              type="text" 
+              ng-model="segment.value"
+              name="{{segment.name}}"
+              class="gf-form-input"
+              placeholder="{{segment.text}}" />
+          </div>
+        </div>
+       
+        <!-- </div> -->
+      </div>
+      <div class="gf-form">
       </div>
     </div>
-    <div class="gf-form gf-form--grow">
+    <div class="gf-form gf-form-grow">
       <div class="gf-form-label gf-form-label--grow"></div>
     </div>
   </div>
 </query-editor-row>
+
+
+   <!-- <select  ng-if="segment.model=='dropdown'"
+            ng-model="segment.value" 
+            ng-options="y.value as y.text for (x,y) in segment.items"
+            ng-change="ctrl.onChangeInternal()">
+            </select> -->

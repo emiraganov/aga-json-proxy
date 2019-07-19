@@ -1,8 +1,7 @@
-## Simple JSON Datasource - a generic backend datasource
+## Aga JSON Datasource For Grafana - IN DEVELOPMENT
 
-More documentation about datasource plugins can be found in the [Docs](https://github.com/grafana/grafana/blob/master/docs/sources/plugins/developing/datasources.md).
-
-This also serves as a living example implementation of a datasource.
+It is built on top of simple-json-datasource with allowing more metrics to be defined
+as different fields
 
 Your backend needs to implement 4 urls:
 
@@ -18,20 +17,69 @@ Those two urls are optional:
 
 ## Installation
 
-To install this plugin using the `grafana-cli` tool:
-```
-sudo grafana-cli plugins install grafana-simple-json-datasource
-sudo service grafana-server restart
-```
-See [here](https://grafana.com/plugins/grafana-simple-json-datasource/installation) for more
-information.
+To install this plugin using just copy dist folder to your grafana plugins folder
+Copy the data source you want to `/public/app/plugins/datasource/`. Then restart grafana-server. The new data source should now be available in the data source type dropdown in the Add Data Source View.
 
-### Example backend implementations
-- https://github.com/bergquist/fake-simple-json-datasource
-- https://github.com/smcquay/jsonds
-- https://github.com/ContextLogic/eventmaster
-- https://gist.github.com/linar-jether/95ff412f9d19fdf5e51293eb0c09b850 (Python/pandas backend)
+### Search API
+```
 
+Searching goes in two stages:
+- First it is asking you for target lists. This shoudl be list all your metrics that you export
+- Once target is selected, then it will ask you all your additional fields/filters for this metric
+
+```
+
+First time it will request with empty target
+
+Example request
+``` javascript
+{ target: '' }
+```
+
+Example response
+``` javascript
+[ { "text" :"Queue Calls", "value": "queuecalls"}, { "text" :"Agent Calls", "value": "agentcalls"} ]
+```
+
+
+Second time it will ask you for additional metric fields
+
+Example request
+``` javascript
+{ target: 'queuecalls' }
+```
+
+Example response
+``` javascript
+[ 
+  { "name": "queue_filter", "text" :"Choose queue", "value": "", "model" : "dropdown"}, 
+  { "name": "agent_filter", "text" :"Choose agent", "value": "", "model" : "dropdown"}, 
+  { "name": "callerid_filter", "text" :"Enter Callerid", "value": "", "model" : "input"}, 
+  { "name": "talktime_filter", "text" :"Choose agent", "value": "", "model" : "conditioninput"}, 
+]
+```
+
+For model dropdown it will ask you to return list same as for target list. 
+So you will get for each dropdown search request with name associated
+"value" field is used as default value or selected one if defined in following list
+
+Example request
+``` javascript
+{ target: 'queue_filter' }
+```
+
+Example response
+``` javascript
+[ 
+  { "text" :"NONE", "value": ""}, 
+  { "text" :"Sales", "value": "sales"}, 
+  { "text" :"Support", "value": "support"}
+]
+```
+
+
+
+```
 ### Query API
 
 Example `timeserie` request
@@ -53,8 +101,24 @@ Example `timeserie` request
   "interval": "30s",
   "intervalMs": 30000,
   "targets": [
-     { "target": "upper_50", "refId": "A", "type": "timeserie" },
-     { "target": "upper_75", "refId": "B", "type": "timeserie" }
+     { 
+      "target": "upper_50", 
+      "refId": "A", 
+      "type": "timeserie" 
+      "filters": [
+        { "name": "queue", "operator": "=", "value": "Sales" },
+        { "name": "agent", "operator": "=", "value": "bob" },
+        { "name": "talktime", "operator": ">", "value": "10" },
+      ]
+     },
+     { 
+      "target": "upper_75", 
+      "refId": "A", 
+      "type": "timeserie" 
+      "filters": [
+        { "name": "agent", "operator": "=", "value": "julia" },
+      ]
+     }
   ],
   "adhocFilters": [{
     "key": "City",
@@ -105,6 +169,7 @@ If the metric selected is `"type": "table"`, an example `table` response:
 ]
 ```
 
+
 ### Annotation API
 
 The annotation request from the Simple JSON Datasource is a POST request to
@@ -154,24 +219,6 @@ Access-Control-Allow-Methods:POST
 Access-Control-Allow-Origin:*
 ```
 
-### Search API
-
-Example request
-``` javascript
-{ target: 'upper_50' }
-```
-
-The search api can either return an array or map.
-
-Example array response
-``` javascript
-["upper_25","upper_50","upper_75","upper_90","upper_95"]
-```
-
-Example map response
-``` javascript
-[ { "text" :"upper_25", "value": 1}, { "text" :"upper_75", "value": 2} ]
-```
 
 ### Tag Keys API
 
@@ -213,38 +260,3 @@ npm install -g yarn
 yarn install
 npm run build
 ```
-
-### Changelog
-
-1.4.0
-
-- Support for adhoc filters:
-  - added tag-keys + tag-values api
-  - added adHocFilters parameter to query body
-
-1.3.5
-- Fix for dropdowns in query editor to allow writing template variables (broke due to change in Grafana).
-
-1.3.4
-- Adds support for With Credentials (sends grafana cookies with request) when using Direct mode
-- Fix for the typeahead component for metrics dropdown (`/search` endpoint).
-
-1.3.3
- - Adds support for basic authentication
-
-1.2.4
- - Add support returning sets in the search endpoint
-
-1.2.3
- - Allow nested templates in find metric query. #23
-
-1.2.2
- - Dont execute hidden queries
- - Template support for metrics queries
- - Template support for annotation queries
-
-### If using Grafana 2.6
-NOTE!
-for grafana 2.6 please use [this version](https://github.com/grafana/simple-json-datasource/commit/b78720f6e00c115203d8f4c0e81ccd3c16001f94)
-
-Copy the data source you want to `/public/app/plugins/datasource/`. Then restart grafana-server. The new data source should now be available in the data source type dropdown in the Add Data Source View.

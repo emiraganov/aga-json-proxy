@@ -71,16 +71,18 @@ export class GenericDatasource {
     });
   }
 
-  metricFindQuery(query) {
+  metricFindQuery(query, datacb) {
     var interpolated = {
-        target: this.templateSrv.replace(query, null, 'regex')
+        target: this.templateSrv.replace(query, null, 'regex'),
     };
 
     return this.doRequest({
       url: this.url + '/search',
       data: interpolated,
       method: 'POST',
-    }).then(this.mapToTextValue);
+    });
+
+    // .then(this.mapToTextValue);
   }
 
   mapToTextValue(result) {
@@ -102,17 +104,21 @@ export class GenericDatasource {
   }
 
   buildQueryParameters(options) {
-    //remove placeholder targets
-    options.targets = _.filter(options.targets, target => {
-      return target.target !== 'select metric';
-    });
-
     var targets = _.map(options.targets, target => {
+      var filters = _.map(target.segments, seg => {
+        return {
+          name: seg.name,
+          operator: seg.operator || "=",
+          value: seg.value,
+        };
+      });
+
       return {
         target: this.templateSrv.replace(target.target, options.scopedVars, 'regex'),
         refId: target.refId,
         hide: target.hide,
-        type: target.type || 'timeserie'
+        type: target.type || 'timeserie',
+        filters: filters,
       };
     });
 

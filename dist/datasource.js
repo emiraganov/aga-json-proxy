@@ -94,7 +94,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }
   }, {
     key: 'metricFindQuery',
-    value: function metricFindQuery(query) {
+    value: function metricFindQuery(query, datacb) {
       var interpolated = {
         target: this.templateSrv.replace(query, null, 'regex')
       };
@@ -103,7 +103,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
         url: this.url + '/search',
         data: interpolated,
         method: 'POST'
-      }).then(this.mapToTextValue);
+      });
+
+      // .then(this.mapToTextValue);
     }
   }, {
     key: 'mapToTextValue',
@@ -130,17 +132,21 @@ var GenericDatasource = exports.GenericDatasource = function () {
     value: function buildQueryParameters(options) {
       var _this = this;
 
-      //remove placeholder targets
-      options.targets = _lodash2.default.filter(options.targets, function (target) {
-        return target.target !== 'select metric';
-      });
-
       var targets = _lodash2.default.map(options.targets, function (target) {
+        var filters = _lodash2.default.map(target.segments, function (seg) {
+          return {
+            name: seg.name,
+            operator: seg.operator || "=",
+            value: seg.value
+          };
+        });
+
         return {
           target: _this.templateSrv.replace(target.target, options.scopedVars, 'regex'),
           refId: target.refId,
           hide: target.hide,
-          type: target.type || 'timeserie'
+          type: target.type || 'timeserie',
+          filters: filters
         };
       });
 

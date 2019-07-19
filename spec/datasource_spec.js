@@ -45,7 +45,7 @@ describe('GenericDatasource', function() {
         });
     });
 
-    it ('should return the metric results when a target is null', function(done) {
+    /*it ('should return the metric results when a target is null', function(done) {
         ctx.backendSrv.datasourceRequest = function(request) {
             return ctx.$q.when({
                 _request: request,
@@ -276,6 +276,6 @@ describe('GenericDatasource', function() {
             expect(result[2].key).to.equal(data[2].key);
             done();
         });
-    });
+    });*/
 
 });

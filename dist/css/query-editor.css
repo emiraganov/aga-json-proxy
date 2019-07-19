@@ -1,3 +1,22 @@
 .generic-datasource-query-row .query-keyword {
   width: 75px;
 }
+
+.aga-filters {
+	margin-left: 3px !important;
+}
+
+.aga-conditioninput > select {
+	color: #3db5e4;
+	background-color: #09090b;
+	border-right: 0px;
+    margin-right: -1px;
+}
+
+.aga-conditioninput > input {
+	margin-left: 0px;
+    border-left: 0px;
+    outline: none;
+	background-color: #09090b !important;
+	box-shadow: none !important;
+}
