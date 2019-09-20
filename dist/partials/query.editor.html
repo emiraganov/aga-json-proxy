@@ -1,18 +1,20 @@
 <query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
   <div class="gf-form-inline">
     <div class="gf-form max-width-8">
-      <select class="gf-form-input" ng-model="ctrl.target.type" ng-options="f as f for f in ['table', 'timeserie']"></select>
+      <select class="gf-form-input" ng-model="ctrl.target.type"
+        ng-options="f as f for f in ['table', 'timeserie']"></select>
     </div>
 
     <div class="gf-form" ng-if="ctrl.target.rawQuery">
-      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeITarget)" />
-    </div>
+      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false"
+        ng-blur="ctrl.onChangeITarget)" />
+      </div>
 
     <div ng-if="!ctrl.target.rawQuery">
       <div class="gf-form">
         <gf-form-dropdown model="ctrl.target.target"
           allow-custom="false"
-          lookup-text="true"
+          lookup-text="false"
           get-options="ctrl.getOptions($query)"
           on-change="ctrl.onChangeTarget()">
         </gf-form-dropdown>
@@ -24,7 +26,7 @@
           <gf-form-dropdown ng-if="segment.model=='dropdown'"
             model="segment.value"
             allow-custom="true"
-            lookup-text="true"
+            lookup-text="false"
             class = "max-width-12"
             get-options="ctrl.getSegmentOptions(segment,$query)"
             on-change="ctrl.onChangeInternal()">
@@ -44,7 +46,7 @@
              <select ng-if="segment.model=='conditioninput'" 
               class = "max-width-4" 
               ng-model="segment.operator"
-              ng-init="segment.operator = '<'" 
+              ng-init="segment.operator = segment.operator ? segment.operator : '<'" 
               ng-options="x for x in ctrl.operators"
               ng-change="ctrl.onChangeInternal()">
             </select>

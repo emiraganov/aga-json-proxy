@@ -31,6 +31,7 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
 		_this.operators = ["<", ">", "=", "!="];
 		_this.target.target = _this.target.target || 'select metric';
 		_this.target.type = _this.target.type || 'timeserie';
+		_this.target.options = _this.target.options || [];
 		_this.target.segments = _this.target.segments || [];
 		return _this;
 	}
@@ -38,26 +39,38 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
 	_createClass(GenericDatasourceQueryCtrl, [{
 		key: 'getOptions',
 		value: function getOptions(query) {
+			var _this2 = this;
+
+			if (query != "" && this.target.options.length > 0) {
+				return this.target.options;
+			}
+
 			return this.datasource.metricFindQuery(query || '').then(function (result) {
+				_this2.target.options = result.data;
 				return result.data;
 			});
 		}
 	}, {
 		key: 'getSegmentOptions',
 		value: function getSegmentOptions(segment, query) {
+			if (query != "" && segment.options.length > 0) {
+				return segment.options;
+			}
+
 			return this.datasource.metricFindQuery(segment.name).then(function (result) {
+				segment.options = result.data;
 				return result.data;
 			});
 		}
 	}, {
 		key: 'updateSegments',
 		value: function updateSegments() {
-			var _this2 = this;
+			var _this3 = this;
 
 			if (this.target.target && this.target.target != 'select metric') {
 				this.datasource.metricFindQuery(this.target.target || '').then(function (result) {
-					_this2.target.segments = result.data;
-					_this2.panelCtrl.refresh();
+					_this3.target.segments = result.data;
+					_this3.panelCtrl.refresh();
 				});;
 			}
 		}
@@ -74,7 +87,6 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
 	}, {
 		key: 'onChangeInternal',
 		value: function onChangeInternal() {
-			console.log("onChangeInternal");
 			this.panelCtrl.refresh(); // Asks the panel to refresh data.
 		}
 	}]);
