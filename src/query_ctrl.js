@@ -1,27 +1,38 @@
-import {QueryCtrl} from 'app/plugins/sdk';
+import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 export class GenericDatasourceQueryCtrl extends QueryCtrl {
-	constructor($scope, $injector)  {
+	constructor($scope, $injector) {
 		super($scope, $injector);
 		this.scope = $scope;
 		console.log("constructor", this.target.target);
-		
+
 		this.operators = ["<", ">", "=", "!="];
 		this.target.target = this.target.target || 'select metric';
 		this.target.type = this.target.type || 'timeserie';
+		this.target.options = this.target.options || [];
 		this.target.segments = this.target.segments || [];
 	}
 
 	getOptions(query) {
+		if (query != "" && this.target.options.length > 0) {
+			return this.target.options;
+		}
+
 		return this.datasource.metricFindQuery(query || '').then(result => {
+			this.target.options = result.data;
 			return result.data;
 		});
 	}
 
 	getSegmentOptions(segment, query) {
+		if (query != "" && segment.options.length > 0) {
+			return segment.options;
+		}
+
 		return this.datasource.metricFindQuery(segment.name).then(result => {
-		  return result.data;
+			segment.options = result.data;
+			return result.data;
 		});
 	}
 
@@ -43,7 +54,6 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
 	}
 
 	onChangeInternal() {
-		console.log("onChangeInternal");
 		this.panelCtrl.refresh(); // Asks the panel to refresh data.
 	}
 
