@@ -46,7 +46,7 @@
              <select ng-if="segment.model=='conditioninput'" 
               class = "max-width-4" 
               ng-model="segment.operator"
-              ng-init="segment.operator = '<'" 
+              ng-init="segment.operator = segment.operator ? segment.operator : '<'" 
               ng-options="x for x in ctrl.operators"
               ng-change="ctrl.onChangeInternal()">
             </select>
